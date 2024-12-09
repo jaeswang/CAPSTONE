@@ -65,6 +65,16 @@ def create_time_series(df):
     fig.update_layout(xaxis=dict(rangeslider_visible=True), yaxis_title="Streamflow (DISCHRG Value)")
     return fig
 
+# Add this new function for making predictions
+def make_prediction(model, df):
+    # Get the last 7 days of data
+    last_week = df["DISCHRG Value"].tail(7).values
+    # Normalize the data (adjust based on your model's training)
+    input_data = torch.FloatTensor(last_week).unsqueeze(0)
+    with torch.no_grad():
+        prediction = model(input_data)
+    return prediction.numpy()[0]
+
 # Load data and model
 df = load_data(DATA_FILE)
 model = load_model(MODEL_FILE)
@@ -73,11 +83,54 @@ model = load_model(MODEL_FILE)
 app = dash.Dash(__name__)
 
 app.layout = html.Div([
-    html.H1("Streamflow Prediction Dashboard"),
-    dcc.Graph(id="map", figure=create_map(df)),
-    dcc.Graph(id="time-series", figure=create_time_series(df)),
-    html.Div(id="prediction-output"),
+    html.Div([
+        html.H1("Streamflow Prediction Dashboard", 
+                style={'textAlign': 'center', 'color': '#2c3e50'}),
+        html.Div([
+            html.Div([
+                dcc.Graph(id="map", figure=create_map(df))
+            ], className='six columns'),
+            html.Div([
+                html.H3("Current Statistics", style={'textAlign': 'center'}),
+                html.Div(id="current-stats", style={'padding': '20px'})
+            ], className='six columns'),
+        ], className='row'),
+        html.Div([
+            dcc.Graph(id="time-series", figure=create_time_series(df))
+        ], className='row'),
+        html.Div([
+            html.H3("Prediction for Next Day", style={'textAlign': 'center'}),
+            html.Div(id="prediction-output", style={'textAlign': 'center'})
+        ], className='row'),
+    ], className='container')
 ])
+
+# Add these callbacks
+@app.callback(
+    Output("current-stats", "children"),
+    Input("time-series", "figure")
+)
+def update_stats(figure):
+    current_value = df["DISCHRG Value"].iloc[-1]
+    daily_change = df["diffs"].iloc[-1]
+    return [
+        html.P(f"Current Streamflow: {current_value:.2f}"),
+        html.P(f"Daily Change: {daily_change:.2f}",
+               style={'color': 'green' if daily_change >= 0 else 'red'})
+    ]
+
+@app.callback(
+    Output("prediction-output", "children"),
+    Input("time-series", "figure")
+)
+def update_prediction(figure):
+    prediction = make_prediction(model, df)
+    return f"Predicted Streamflow: {prediction[0]:.2f}"
+
+# Add this before app.run_server
+app.css.append_css({
+    'external_url': 'https://codepen.io/chriddyp/pen/bWLwgP.css'
+})
 
 if __name__ == "__main__":
     app.run_server(debug=True)
