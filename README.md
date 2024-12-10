@@ -4,11 +4,11 @@ An interactive dashboard for monitoring and predicting streamflow along the Rio 
 
 ## Features
 - Real-time streamflow monitoring for multiple stations
-- 30-day flow predictions
+- 1-day, 4-day, 7-day, 30-day flow predictions
 - Interactive map visualization
 - Detailed station metrics and statistics
 - Trend analysis and confidence levels
 
 ## Installation
 
-1. Clone the repository: 
+1. Clone the repository.
