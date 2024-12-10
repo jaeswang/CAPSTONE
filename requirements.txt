@@ -6,3 +6,4 @@ geopandas==0.14.1
 shapely==2.0.2
 wget==3.2
 fiona==1.9.4
+gunicorn==21.2.0

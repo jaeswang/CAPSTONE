@@ -1,1 +1,14 @@
- 
+## Data Sources
+- Streamflow predictions from monitoring stations along the Rio Grande
+- River geometry data from Natural Earth
+
+## Project Structure
+- `application.py`: Main dashboard application
+- `Predictions/`: Directory containing prediction CSV files
+- `River_centerlines/`: Directory containing river geometry files 
+
+
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
