@@ -9,6 +9,8 @@ import geopandas as gpd
 import shapely.geometry
 import wget
 import os
+import plotly.io as pio
+import webbrowser
 
 # Station configurations
 STATIONS = {
@@ -92,6 +94,9 @@ fig1.update_layout(
     yaxis_title="Streamflow (ft³/s)",
     hovermode="x unified"
 )
+
+# Export time series figure
+pio.write_html(fig1, file="timeseries.html", full_html=True, auto_open=True)
 
 # Download the shapefile if it doesn't exist
 shapefile_path = "ne_50m_rivers_lake_centerlines.zip"
@@ -207,6 +212,24 @@ map_fig.update_layout(
         x=0.99
     )
 )
+
+# Export map figure
+pio.write_html(map_fig, file="map.html", full_html=True, auto_open=True)
+
+# If you want to combine both figures into a single HTML file:
+combined_fig = go.Figure()
+combined_fig.add_traces(fig1.data + map_fig.data)
+combined_fig.update_layout(
+    height=1200,  # Increased height to accommodate both figures
+    grid={"rows": 2, "columns": 1, "pattern": "independent"},
+    title="Rio Grande Streamflow Dashboard"
+)
+
+# Export combined figure
+pio.write_html(combined_fig, file="index.html", full_html=True, auto_open=True)
+
+# Or alternatively, use webbrowser module to open manually:
+webbrowser.open('index.html')
 
 # Dash App
 app = Dash(__name__)
